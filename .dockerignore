@@ -3,6 +3,7 @@
 .env
 .env.*
 README.md
+HISTORICO_CONVERSA_ANTIGRAVITY.md
 wp-content/aiowps_backups
 wp-content/updraft
 wp-content/upgrade-temp-backup
