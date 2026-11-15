@@ -1,0 +1,73 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bib-app
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "${APP_PORT:-8080}:80"
+    environment:
+      WORDPRESS_DB_HOST: "${WORDPRESS_DB_HOST:-db:3306}"
+      WORDPRESS_DB_NAME: "${WORDPRESS_DB_NAME:-bib}"
+      WORDPRESS_DB_USER: "${WORDPRESS_DB_USER:-bib}"
+      WORDPRESS_DB_PASSWORD: "${WORDPRESS_DB_PASSWORD:-8MPZ7ukIHUqV68gn}"
+      WORDPRESS_TABLE_PREFIX: "${WORDPRESS_TABLE_PREFIX:-wp_}"
+      WP_HOME: "${WP_HOME:-http://localhost:8080}"
+      WP_SITEURL: "${WP_SITEURL:-}"
+      WORDPRESS_DEBUG: "${WORDPRESS_DEBUG:-false}"
+      WP_MEMORY_LIMIT: "${WP_MEMORY_LIMIT:-256M}"
+      WP_MAX_MEMORY_LIMIT: "${WP_MAX_MEMORY_LIMIT:-512M}"
+      WP_ADMIN_USER: "${WP_ADMIN_USER:-admin}"
+      WP_ADMIN_PASSWORD: "${WP_ADMIN_PASSWORD:-}"
+      WORDPRESS_AUTH_KEY: "${WORDPRESS_AUTH_KEY:-}"
+      WORDPRESS_SECURE_AUTH_KEY: "${WORDPRESS_SECURE_AUTH_KEY:-}"
+      WORDPRESS_LOGGED_IN_KEY: "${WORDPRESS_LOGGED_IN_KEY:-}"
+      WORDPRESS_NONCE_KEY: "${WORDPRESS_NONCE_KEY:-}"
+      WORDPRESS_AUTH_SALT: "${WORDPRESS_AUTH_SALT:-}"
+      WORDPRESS_SECURE_AUTH_SALT: "${WORDPRESS_SECURE_AUTH_SALT:-}"
+      WORDPRESS_LOGGED_IN_SALT: "${WORDPRESS_LOGGED_IN_SALT:-}"
+      WORDPRESS_NONCE_SALT: "${WORDPRESS_NONCE_SALT:-}"
+    volumes:
+      - bib_uploads:/var/www/html/wp-content/uploads
+    networks:
+      - web
+      - bib_internal
+
+  db:
+    image: mariadb:10.11
+    container_name: bib-db
+    restart: unless-stopped
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --max-allowed-packet=128M
+    environment:
+      MARIADB_DATABASE: "${WORDPRESS_DB_NAME:-bib}"
+      MARIADB_USER: "${WORDPRESS_DB_USER:-bib}"
+      MARIADB_PASSWORD: "${WORDPRESS_DB_PASSWORD:-8MPZ7ukIHUqV68gn}"
+      MARIADB_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:-root_bib_secret_2026}"
+      TZ: "America/Sao_Paulo"
+    volumes:
+      - bib_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    networks:
+      - bib_internal
+
+volumes:
+  bib_uploads:
+    name: bib_uploads
+  bib_db_data:
+    name: bib_db_data
+
+networks:
+  web:
+    external: true
+    name: web
+  bib_internal:
+    driver: bridge
+    name: bib_internal

@@ -1,0 +1,20 @@
+# Variáveis de ambiente locais com dados sensíveis
+.env
+.env.local
+.env.production
+
+# Caches e backups temporários gerados por plugins
+wp-content/cache/
+wp-content/wpo-cache/
+wp-content/updraft/
+wp-content/aiowps_backups/
+wp-content/upgrade/
+wp-content/upgrade-temp-backup/
+
+# Arquivos de sistema operacional e editores
+.DS_Store
+Thumbs.db
+*.swp
+*.bak
+.vscode/
+.idea/

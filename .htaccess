@@ -1,0 +1,31 @@
+# Proteção de arquivos sensíveis e de infraestrutura
+<FilesMatch "^(wp-config\.php|\.env.*|.*\.sql(\.gz)?|Dockerfile|docker-compose.*\.yml|README\.md|\.gitignore|\.dockerignore)$">
+    Require all denied
+</FilesMatch>
+
+# Redirecionamento de compatibilidade para links legados com prefixo /bib/
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteRule ^bib/?$ / [R=301,L]
+RewriteRule ^bib/(.*)$ /$1 [R=301,L]
+</IfModule>
+
+# BEGIN WordPress
+# As diretrizes (linhas) entre "BEGIN WordPress" e "END WordPress" são
+# geradas dinamicamente e só devem ser modificadas através de filtros do WordPress.
+# Quaisquer alterações nas diretivas entre esses marcadores serão sobrescritas.
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+</IfModule>
+
+# BEGIN Gutenberg client-side media processing
+AddType application/wasm wasm
+# END Gutenberg client-side media processing
+
+# END WordPress
